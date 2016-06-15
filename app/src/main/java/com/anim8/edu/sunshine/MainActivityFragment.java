@@ -17,7 +17,8 @@ import java.util.List;
  */
 public class MainActivityFragment extends Fragment {
 
-    //ListView list;
+    //ArrayList
+    ArrayAdapter<String> mForecastAdapter;
 
     public MainActivityFragment() {
     }
@@ -37,17 +38,22 @@ public class MainActivityFragment extends Fragment {
             "Sat 6/28 - TRAPPED IN WEATHER STATION - 23/18",
             "Sun 6/29 - Sunny - 20/7"
         };
-
-        View fragmentView = inflater.inflate(R.layout.fragment_main, container, false);
         List<String> weekForecast = new ArrayList<String>(Arrays.asList(data));
 
-        // This code was missing. Withotu it, listview blank - found online
+        // This code was missing. Without it, listview blank - found online
         // at http://stackoverflow.com/questions/30045343/listview-not-showing-up-in-my-layout-android-studios
-        ArrayAdapter<String> mForecastAdapter = new ArrayAdapter<String>(
-                getActivity(),
-                R.layout.list_item_forecast,
-                R.id.list_item_forecast_textview,
-                weekForecast);
+        //tweaked in later videos
+
+        //create an adapter
+        mForecastAdapter = new ArrayAdapter<String>(
+                getActivity(), //context (current activity)
+                R.layout.list_item_forecast, //ID of list item layout
+                R.id.list_item_forecast_textview, //ID of text view
+                weekForecast); //Array List of data
+
+        //create fragment view
+        View fragmentView =inflater.inflate(R.layout.fragment_main,container, false);
+        //create list view & populate it:
         ListView listView = (ListView) fragmentView.findViewById(R.id.listview_forecast);
         listView.setAdapter(mForecastAdapter);
 
