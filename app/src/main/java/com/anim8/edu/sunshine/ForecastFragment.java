@@ -1,10 +1,13 @@
 package com.anim8.edu.sunshine;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -56,7 +59,9 @@ public class ForecastFragment extends Fragment {
         int id = item.getItemId();
         if (id == R.id.action_refresh){
             //following lines for debug only (as is this whole 'Refresh button' itself!)
-            Toast.makeText(getActivity(),"Refresh button selected",Toast.LENGTH_LONG).show();
+
+
+
             //The first new FeatchWeatherTask() line below doesn't crash for some reason,
             //even without INTERNET PERMISSION
             //but equivalent two line
@@ -65,7 +70,17 @@ public class ForecastFragment extends Fragment {
             //new FetchWeatherTask().execute();//create a new Async task (FetchWeatherTask() here)
             FetchWeatherTask weatherTask = new FetchWeatherTask();
             //Udacity course asks to code for zip, but OpenWeatherMap apparently no longer supports
-            weatherTask.execute("Mountain, US"); //hard code city name & country abbreviation
+
+            //note: following code should not block UI but can't be in AsyncTask (weather)?
+            //check to see if internet permission is available
+            if (ContextCompat.checkSelfPermission(getActivity(),
+                    Manifest.permission.INTERNET)
+                    != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(getActivity(),"Internet permission required for refresh",Toast.LENGTH_LONG).show();
+               } else {
+                weatherTask.execute("Mountain, US"); //hard code city name & country abbreviation
+                Toast.makeText(getActivity(),"Refresh button selected",Toast.LENGTH_LONG).show();
+            }
 
             return true; //debug temp return value only
 
@@ -120,6 +135,7 @@ public class ForecastFragment extends Fragment {
                 return null;
             }
 
+
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
             HttpURLConnection urlConnection = null;
@@ -135,6 +151,23 @@ public class ForecastFragment extends Fragment {
 
 
                 try {
+
+
+                    if (ContextCompat.checkSelfPermission(getActivity(),
+                            Manifest.permission.INTERNET)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        Toast.makeText(getActivity(),"Internet permission required",Toast.LENGTH_LONG).show();
+                        return null;
+                    }
+                        // Should we show an explanation?
+   /*                     if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                                Manifest.permission.INTERNET)) {
+
+                            // Show an expanation to the user *asynchronously* -- don't block
+                            // this thread waiting for the user's response! After the user
+                            // sees the explanation, try again to request the permission.
+
+                        */
                     // Construct the URL for the OpenWeatherMap query
                     // Possible parameters are available at OWM's forecast API page, at
                     // http://openweathermap.org/API#forecast
