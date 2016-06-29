@@ -42,10 +42,8 @@ import java.util.List;
  */
 public class ForecastFragment extends Fragment {
 
-    //public static final String TAG = "ForecastFragment";
-    //Define string ArrayAdapter variable
+    //Define string ArrayAdapter variable globally so can access in FetchWeatherTask AsyncTask
     private ArrayAdapter<String> mForecastAdapter;
-
     //constructor
     public ForecastFragment() {
     }
@@ -53,12 +51,14 @@ public class ForecastFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true); //Must override onCreate to tell fragment it has OptionsMenu
+        //Must override onCreate to tell fragment it has OptionsMenu
+        //Add this line in order for this fragment to handle menu events
+        setHasOptionsMenu(true);
     }
 
     @Override //Then we override onCreateOptions menu to inflate our forecastfragment XML
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater); //not sure this is required
+        //super.onCreateOptionsMenu(menu, inflater); //not sure this is required
         inflater.inflate(R.menu.forecastfragment, menu);  //we created forecastfragment
     }
 
@@ -80,14 +80,12 @@ public class ForecastFragment extends Fragment {
                     != PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(getActivity(), "Internet permission required for refresh", Toast.LENGTH_LONG).show();
                 //return true; //we've handled this event (by giving an error message) - see alt below
-            } else {
+
+            } else { //Here's where the FetchWeatherTask AsyncTask is actually called if has internet permission
                 weatherTask.execute("Mountain, US"); //hard code city name & country abbreviation
                 Toast.makeText(getActivity(), "Refresh button selected", Toast.LENGTH_LONG).show();
                 return true; //we've handled this event (as intended)
             }
-
-            //return true; //debug temp return value only
-            //return super.onOptionsItemSelected(item); //this was in udacity code, not sure why
             return true; //ensures menu selected is always consumed, even if error message above
         }
         return super.onOptionsItemSelected(item);
@@ -138,17 +136,12 @@ public class ForecastFragment extends Fragment {
         // * so for convenience we're breaking it out into its own method now.
         // */
 
-//         private String getReadableDateString(long time){
-//         //private String getReadableDateString(Date time){
-//         // Because the API returns a unix timestamp (measured in seconds),
-//         // it must be converted to milliseconds in order to be converted to valid date.
-//         SimpleDateFormat shortenedDateFormat = new SimpleDateFormat("EEE MMM dd");
-//         return shortenedDateFormat.format(time);
-//         }
+        //ToDo: Refactor SimpleDateFormat code here
 
         /**
          * Prepare the weather high/lows for presentation.
          */
+        //basically a String formatter for hi/lo temperatures
         private String formatHighLows(double high, double low) {
             // For presentation, assume the user doesn't care about tenths of a degree.
             long roundedHigh = Math.round(high);
@@ -165,6 +158,7 @@ public class ForecastFragment extends Fragment {
          * Fortunately parsing is easy:  constructor takes the JSON string and converts it
          * into an Object hierarchy for us.
          */
+        //basically a JSON formatting utility
         private String[] getWeatherDataFromJson(String forecastJsonStr, int numDays)
                 throws JSONException {
 
@@ -219,14 +213,16 @@ public class ForecastFragment extends Fragment {
                 gc.add(GregorianCalendar.DATE, 1);
             } //closing bracket for weatherData array iteration
 
-            //verify  resultStrs[] content
+            //verify returning correct resultStrs[] content
             for (String s : resultStrs) {
                 Log.v(LOG_TAG, "Forecast entry: " + s);
             }
 
-            return resultStrs;
-        } // closing bracket for getWeatherDataFromJson
+            //this is the result we are really looking for from getWeatherDataFromJson
+            return resultStrs;  //getWeatherDataFromJson returns string[] (array)
+        } // closing bracket for getWeatherDataFromJson utility method
 
+        //this is the actual FetchWeatherTask AsyncTask code(?)
         @Override
         protected String[] doInBackground(String... params) {
 
@@ -326,8 +322,9 @@ public class ForecastFragment extends Fragment {
                     // Stream was empty.  No point in parsing.
                     return null;
                 }
+                //this is the result string from internet
                 forecastJsonStr = buffer.toString();
-
+                //log result to confirm
                 Log.v(LOG_TAG, "Forecast string: " + forecastJsonStr);
 
             } catch (IOException e) {
@@ -349,8 +346,8 @@ public class ForecastFragment extends Fragment {
                 }
             }
 
-            //call getWeatherDataFraomJson
-            try {
+            //call getWeatherDataFromJson
+            try { //this is where we actually return the 'result' which are
                 return getWeatherDataFromJson(forecastJsonStr, numDays);
             } catch (JSONException e) {
                 Log.e(LOG_TAG, e.getMessage(), e);
@@ -359,6 +356,19 @@ public class ForecastFragment extends Fragment {
 
             // This will only happen if there was an error getting or parsing the forecast.
             return null;
+
         } //closing bracket for doInBackground()
+
+        @Override
+        protected void onPostExecute(String[] result) {  //result is from
+            //string[] array from getWeatherDataFromJson utility method (??)
+            if (result != null) {
+                mForecastAdapter.clear();
+                for (String dayForecastStr : result) {
+                    mForecastAdapter.add(dayForecastStr);
+                }//end for loop
+                //New data is back from the surver. Hooray!
+            }//end if
+        }
     } //closing bracket for FetchWeatherTask
 } //closing bracket for ForecastFragment
