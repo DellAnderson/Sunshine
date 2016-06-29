@@ -68,7 +68,7 @@ public class ForecastFragment extends Fragment {
         //automatically handle clicks on the Home/Up button, so long
         //as you specify a parent activity in the AndroidManifest.xml (me: How? )
         int id = item.getItemId();
-        if (id == R.id.action_refresh){
+        if (id == R.id.action_refresh) {
             //following Refresh button action is for debug only (as is this whole 'Refresh button' itself!)
             //new FetchWeatherTask().execute();//create a new Async task (FetchWeatherTask() here)
             FetchWeatherTask weatherTask = new FetchWeatherTask();
@@ -78,11 +78,11 @@ public class ForecastFragment extends Fragment {
             if (ContextCompat.checkSelfPermission(getActivity(),
                     Manifest.permission.INTERNET)
                     != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(getActivity(),"Internet permission required for refresh",Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "Internet permission required for refresh", Toast.LENGTH_LONG).show();
                 //return true; //we've handled this event (by giving an error message) - see alt below
-               } else {
+            } else {
                 weatherTask.execute("Mountain, US"); //hard code city name & country abbreviation
-                Toast.makeText(getActivity(),"Refresh button selected",Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "Refresh button selected", Toast.LENGTH_LONG).show();
                 return true; //we've handled this event (as intended)
             }
 
@@ -145,6 +145,7 @@ public class ForecastFragment extends Fragment {
 //         SimpleDateFormat shortenedDateFormat = new SimpleDateFormat("EEE MMM dd");
 //         return shortenedDateFormat.format(time);
 //         }
+
         /**
          * Prepare the weather high/lows for presentation.
          */
@@ -160,7 +161,7 @@ public class ForecastFragment extends Fragment {
         /**
          * Take the String representing the complete forecast in JSON Format and
          * pull out the data we need to construct the Strings needed for the wireframes.
-         *
+         * <p/>
          * Fortunately parsing is easy:  constructor takes the JSON string and converts it
          * into an Object hierarchy for us.
          */
@@ -184,7 +185,7 @@ public class ForecastFragment extends Fragment {
             gc.setTime(date); //initialize to current date & time(?)
             //basically we will iterate thru returned results in sync with today's calendar date, inc by 1 each
             String[] resultStrs = new String[numDays];
-            for(int i = 0; i < weatherArray.length(); i++) {
+            for (int i = 0; i < weatherArray.length(); i++) {
 
                 // For now, using the format "Day, description, hi/low"
                 String day; // ex:  "Mon 6/23"
@@ -230,7 +231,7 @@ public class ForecastFragment extends Fragment {
         protected String[] doInBackground(String... params) {
 
             //if no City name, nothing to look up. Verify size of params
-            if (params.length == 0){
+            if (params.length == 0) {
                 return null;
             }
 
@@ -247,14 +248,14 @@ public class ForecastFragment extends Fragment {
             String units = "metric";
             int numDays = 7;
 
-                try {
-                    if (ContextCompat.checkSelfPermission(getActivity(),
-                            Manifest.permission.INTERNET)
-                            != PackageManager.PERMISSION_GRANTED) {
-                        Toast.makeText(getActivity(),"Internet permission required",Toast.LENGTH_LONG).show();
-                        return null;
-                    }
-                        // Should we show an explanation?
+            try {
+                if (ContextCompat.checkSelfPermission(getActivity(),
+                        Manifest.permission.INTERNET)
+                        != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getActivity(), "Internet permission required", Toast.LENGTH_LONG).show();
+                    return null;
+                }
+                // Should we show an explanation?
    /*                     if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
                                 Manifest.permission.INTERNET)) {
 
@@ -263,88 +264,101 @@ public class ForecastFragment extends Fragment {
                             // sees the explanation, try again to request the permission.
                         */
 
-                    // Construct the URL for the OpenWeatherMap query
-                    // Possible parameters are available at OWM's forecast API page, at
-                    // http://openweathermap.org/API#forecast
+                // Construct the URL for the OpenWeatherMap query
+                // Possible parameters are available at OWM's forecast API page, at
+                // http://openweathermap.org/API#forecast
 
-                    //Construct the URL from constants above
-                    final String FORECAST_BASE_URL = "http://api.openweathermap.org/data/2.5/forecast/daily?";
-                    final String QUERY_PARAM = "q";
-                    final String FORMAT_PARAM = "mode";
-                    final String UNITS_PARAM = "units";  //apparently this is not the same as units String variable
-                    final String DAYS_PARAM = "cnt";
-                    final String APPID_PARAM = "APPID";
+                //Construct the URL from constants above
+                final String FORECAST_BASE_URL = "http://api.openweathermap.org/data/2.5/forecast/daily?";
+                final String QUERY_PARAM = "q";
+                final String FORMAT_PARAM = "mode";
+                final String UNITS_PARAM = "units";  //apparently this is not the same as units String variable
+                final String DAYS_PARAM = "cnt";
+                final String APPID_PARAM = "APPID";
+                //To keep APPID private when uploading project to GitHub,
+                //create an ApiKey key/value pair in a file (create if need) called gradle.properties
+                //c:/users/<username>/.gradle  with the following (arbitrary name) key = "..." syntax:
+                //MyOpenWeatherMapApiKey = " ....yourOWMApiKey#...."  then make sure to tell AS where:
+                //Android Studio > settings > Build....> Gradle > Global Gradle settings
+                //points to the same folder & tick "offline" (reason for this is fuzzy but works)
+                //also be sure project folder includes file build.gradle which must include lines:
+                //buildTypes.each {
+                //    it.buildConfigField 'String', 'OPEN_WEATHER_MAP_API_KEY', MyOpenWeatherMapApiKey
+                //}
+                //If it does, you can use OPEN_WEATHER_MAP_API_KEY constant in builtUri below:
 
-                    Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
-                            .appendQueryParameter(QUERY_PARAM, params[0])
-                            .appendQueryParameter(FORMAT_PARAM, format) //format is from earlier variable
-                            .appendQueryParameter(UNITS_PARAM, units)  //units is from earlier variable
-                            .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
-                            .appendQueryParameter(APPID_PARAM, BuildConfig.OPEN_WEATHER_MAP_API_KEY)
-                            .build();
+                Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
+                        .appendQueryParameter(QUERY_PARAM, params[0])
+                        .appendQueryParameter(FORMAT_PARAM, format) //format is from earlier variable
+                        .appendQueryParameter(UNITS_PARAM, units)  //units is from earlier variable
+                        .appendQueryParameter(DAYS_PARAM, Integer.toString(numDays))
+                        .appendQueryParameter(APPID_PARAM, BuildConfig.OPEN_WEATHER_MAP_API_KEY)
+                        .build();
 
-                    URL url = new URL(builtUri.toString());
+                URL url = new URL(builtUri.toString());
 
-                    Log.v(LOG_TAG, "Built URI " + builtUri.toString());
+                Log.v(LOG_TAG, "Built URI " + builtUri.toString());
 
-                    // Create the request to OpenWeatherMap, and open the connection
-                    urlConnection = (HttpURLConnection) url.openConnection();
-                    urlConnection.setRequestMethod("GET");
-                    urlConnection.connect();
+                // Create the request to OpenWeatherMap, and open the connection
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
 
-                    // Read the input stream into a String
-                    InputStream inputStream = urlConnection.getInputStream();
-                    StringBuffer buffer = new StringBuffer();
-                    if (inputStream == null) {
-                        // Nothing to do.
-                        return null;
-                    }
-                    reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                        // But it does make debugging a *lot* easier if you print out the completed
-                        // buffer for debugging.
-                        buffer.append(line + "\n");
-                    }
-
-                    if (buffer.length() == 0) {
-                        // Stream was empty.  No point in parsing.
-                        return null;
-                    }
-
-                    forecastJsonStr = buffer.toString();
-                    Log.v(LOG_TAG, "Forecast string: " + forecastJsonStr);
-
-                               try {
-                                        return getWeatherDataFromJson(forecastJsonStr, numDays);
-                                    } catch (JSONException e) {
-                                        Log.e(LOG_TAG, e.getMessage(), e);
-                                        e.printStackTrace();
-                                    }
-
-                                        // This will only happen if there was an error getting or parsing the forecast.
-                                    return null;
-                } catch (IOException e) {
-                    Log.e(LOG_TAG, "Error ", e);
-                    // If the code didn't successfully get the weather data, there's no point in attempting
-                    // to parse it.
+                // Read the input stream into a String
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream == null) {
+                    // Nothing to do.
                     return null;
+                }
 
+                reader = new BufferedReader(new InputStreamReader(inputStream));
 
-                } finally {
-                    if (urlConnection != null) {
-                        urlConnection.disconnect();
-                    }
-                    if (reader != null) {
-                        try {
-                            reader.close();
-                        } catch (final IOException e) {
-                            Log.e(LOG_TAG, "Error closing stream", e);
-                        }
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                    // But it does make debugging a *lot* easier if you print out the completed
+                    // buffer for debugging.
+                    buffer.append(line + "\n");
+                }
+
+                if (buffer.length() == 0) {
+                    // Stream was empty.  No point in parsing.
+                    return null;
+                }
+                forecastJsonStr = buffer.toString();
+
+                Log.v(LOG_TAG, "Forecast string: " + forecastJsonStr);
+
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Error ", e);
+                // If the code didn't successfully get the weather data, there's no point in attempting
+                // to parse it.
+                return null;
+
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (final IOException e) {
+                        Log.e(LOG_TAG, "Error closing stream", e);
                     }
                 }
+            }
+
+            //call getWeatherDataFraomJson
+            try {
+                return getWeatherDataFromJson(forecastJsonStr, numDays);
+            } catch (JSONException e) {
+                Log.e(LOG_TAG, e.getMessage(), e);
+                e.printStackTrace();
+            }
+
+            // This will only happen if there was an error getting or parsing the forecast.
+            return null;
         } //closing bracket for doInBackground()
     } //closing bracket for FetchWeatherTask
-}
+} //closing bracket for ForecastFragment
