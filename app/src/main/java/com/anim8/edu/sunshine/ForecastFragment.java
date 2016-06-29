@@ -208,15 +208,10 @@ public class ForecastFragment extends Fragment {
 
                 highAndLow = formatHighLows(high, low); //our util function above
                 resultStrs[i] = day + " - " + description + " - " + highAndLow;
-                //Log.v(LOG_TAG, "resultStrs[i].toString(): " + i + " . " + resultStrs[i].toString() );
+
                 //add one to date for next iteration
                 gc.add(GregorianCalendar.DATE, 1);
             } //closing bracket for weatherData array iteration
-
-            //verify returning correct resultStrs[] content
-            for (String s : resultStrs) {
-                Log.v(LOG_TAG, "Forecast entry: " + s);
-            }
 
             //this is the result we are really looking for from getWeatherDataFromJson
             return resultStrs;  //getWeatherDataFromJson returns string[] (array)
@@ -293,8 +288,6 @@ public class ForecastFragment extends Fragment {
 
                 URL url = new URL(builtUri.toString());
 
-                Log.v(LOG_TAG, "Built URI " + builtUri.toString());
-
                 // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("GET");
@@ -324,8 +317,6 @@ public class ForecastFragment extends Fragment {
                 }
                 //this is the result string from internet
                 forecastJsonStr = buffer.toString();
-                //log result to confirm
-                Log.v(LOG_TAG, "Forecast string: " + forecastJsonStr);
 
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
