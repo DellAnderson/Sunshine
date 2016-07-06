@@ -355,9 +355,12 @@ public class ForecastFragment extends Fragment {
             //string[] array from getWeatherDataFromJson utility method (??)
             if (result != null) {
                 mForecastAdapter.clear();
-                for (String dayForecastStr : result) {
+                mForecastAdapter.addAll(result); //for API 11 (Honeycomb) or higher
+                //following is alternative to addAll() but less efficient redraw
+                /*for (String dayForecastStr : result) {
                     mForecastAdapter.add(dayForecastStr);
                 }//end for loop
+*/
                 //New data is back from the surver. Hooray!
             }//end if
         }
