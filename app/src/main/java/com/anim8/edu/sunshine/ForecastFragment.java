@@ -1,6 +1,7 @@
 package com.anim8.edu.sunshine;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -18,7 +19,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -151,7 +151,10 @@ public class ForecastFragment extends Fragment {
                 String forecast = mForecastAdapter.getItem(position); //get text from ArrayList item clicked
                 //also works
                 //String forecast = adapterView.getItemAtPosition(position).toString();
-                Toast.makeText(getActivity(), forecast, LENGTH_LONG).show();
+                //Toast.makeText(getActivity(), forecast, LENGTH_LONG).show();
+                Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
+                detailIntent.putExtra(Intent.EXTRA_TEXT, forecast);
+                startActivity(detailIntent);
             }
         });
 
