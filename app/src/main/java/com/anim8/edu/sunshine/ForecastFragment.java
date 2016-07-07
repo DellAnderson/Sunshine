@@ -15,6 +15,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -36,6 +37,9 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+import static android.widget.Toast.LENGTH_LONG;
+import static android.widget.Toast.makeText;
+
 /**
  * A placeholder fragment containing a simple view.
  * Encapsulates fetching the forecast and displaying it as a {@link ListView} layout
@@ -54,6 +58,8 @@ public class ForecastFragment extends Fragment {
         //Must override onCreate to tell fragment it has OptionsMenu
         //Add this line in order for this fragment to handle menu events
         setHasOptionsMenu(true);
+
+
     }
 
     @Override //Then we override onCreateOptions menu to inflate our forecastfragment XML
@@ -78,12 +84,12 @@ public class ForecastFragment extends Fragment {
             if (ContextCompat.checkSelfPermission(getActivity(),
                     Manifest.permission.INTERNET)
                     != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(getActivity(), "Internet permission required for refresh", Toast.LENGTH_LONG).show();
+                makeText(getActivity(), "Internet permission required for refresh", LENGTH_LONG).show();
                 //return true; //we've handled this event (by giving an error message) - see alt below
 
             } else { //Here's where the FetchWeatherTask AsyncTask is actually called if has internet permission
                 weatherTask.execute("Mountain, US"); //hard code city name & country abbreviation
-                Toast.makeText(getActivity(), "Refresh button selected", Toast.LENGTH_LONG).show();
+                makeText(getActivity(), "Refresh button selected", LENGTH_LONG).show();
                 return true; //we've handled this event (as intended)
             }
             return true; //ensures menu selected is always consumed, even if error message above
@@ -121,6 +127,35 @@ public class ForecastFragment extends Fragment {
         //rootView prefix limits search scope
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
         listView.setAdapter(mForecastAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+ /*           void onItemClick (AdapterView<?> parent,
+                              View view,
+                              int position,
+                              long id)
+            Callback method to be invoked when an item in this AdapterView has been clicked.
+
+            Implementers can call getItemAtPosition(position) if they need to access the data associated with the selected item.
+
+            Parameters
+            parent	AdapterView: The AdapterView where the click happened.
+            view	View: The view within the AdapterView that was clicked (this will be a view provided by the adapter)
+            position	int: The position of the view in the adapter.
+            id	long: The row id of the item that was clicked.*/
+
+
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, //AdapterView where the click happened (here parent of ListView)
+                                    View v, //view within the AdapterView that was clicked (provided by adapter)
+                                    int position, //position of the view in the adapter
+                                    long l) { //row id of the itme that was clicked
+                String forecast = mForecastAdapter.getItem(position); //get text from ArrayList item clicked
+                //also works
+                //String forecast = adapterView.getItemAtPosition(position).toString();
+                Toast.makeText(getActivity(), forecast, LENGTH_LONG).show();
+            }
+        });
+
+        //create a Toast with forecast string
 
         return rootView;
     }
@@ -243,7 +278,7 @@ public class ForecastFragment extends Fragment {
                 if (ContextCompat.checkSelfPermission(getActivity(),
                         Manifest.permission.INTERNET)
                         != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(getActivity(), "Internet permission required", Toast.LENGTH_LONG).show();
+                    makeText(getActivity(), "Internet permission required", LENGTH_LONG).show();
                     return null;
                 }
                 // Should we show an explanation?
