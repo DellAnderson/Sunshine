@@ -121,7 +121,7 @@ public class ForecastFragment extends Fragment {
                 R.id.list_item_forecast_textview, //ID of text view element to populate
                 weekForecast); //Array List of data
 
-        //create fragment view (my fragmentView == rootView in Udacity code so refacted to rootView)
+        //create fragment view (my fragmentView == rootView in Udacity code so refactored to rootView)
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         //get reference to list view & populate it by attaching this adapter to it
         //rootView prefix limits search scope
@@ -149,16 +149,20 @@ public class ForecastFragment extends Fragment {
                                     int position, //position of the view in the adapter
                                     long l) { //row id of the itme that was clicked
                 String forecast = mForecastAdapter.getItem(position); //get text from ArrayList item clicked
+                //create a Toast with forecast string
                 //also works
                 //String forecast = adapterView.getItemAtPosition(position).toString();
                 //Toast.makeText(getActivity(), forecast, LENGTH_LONG).show();
+
+
+                //replace Toast with Explicit Intent to DetailActivity
                 Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
-                detailIntent.putExtra(Intent.EXTRA_TEXT, forecast);
+                detailIntent.putExtra(Intent.EXTRA_TEXT, forecast);  //EXTRA_TEXT can be anything
                 startActivity(detailIntent);
             }
         });
 
-        //create a Toast with forecast string
+
 
         return rootView;
     }
