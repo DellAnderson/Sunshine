@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 /**
  * A placeholder fragment containing a simple view.
+ * Udacity put this class definition at bottom DetailActivity.java
  */
 public class DetailActivityFragment extends Fragment {
 
@@ -19,6 +20,7 @@ public class DetailActivityFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         //Detail activity was called via an intent.  Inspect the intent for forecast data
         //NOTE:  THIS IS VERY IMPORTANT when passing data
         Intent intent = getActivity().getIntent();

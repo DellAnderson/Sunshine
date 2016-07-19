@@ -1,5 +1,6 @@
 package com.anim8.edu.sunshine;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -42,8 +43,14 @@ public class MainActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        //explicit intent for settings
+        //NOTE: we are in MainActivity.  No idea why the 'refresh' is done
+        //in Fragment but settings (same menu) is from Main). Weird except
+        //with settings we are actually changing activity completely, not refreshing same
+        if(id == R.id.action_settings) {
+            //launch settings page
+            Intent settingsIntent = new Intent(this, SettingsActivity.class);
+            startActivity(settingsIntent);
             return true;
         }
 
