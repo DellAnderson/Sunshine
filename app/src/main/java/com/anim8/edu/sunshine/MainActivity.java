@@ -51,6 +51,7 @@ public class MainActivity extends AppCompatActivity {
             //launch settings page
             Intent settingsIntent = new Intent(this, SettingsActivity.class);
             startActivity(settingsIntent);
+            //or startActivity(new Intent(this, SettingsActivity.class);
             return true;
         }
 

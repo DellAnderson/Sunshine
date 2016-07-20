@@ -3,5 +3,11 @@
     <string name="action_settings">Settings</string>
     <string name="action_refresh" translatable="false">Refresh</string>
     <string name="title_activity_detail">DetailActivity</string>
-    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="title_activity_settings">Settings</string>
+    <!-- Key name for storing location in SharedPreferences[CHAR LIMIT = NONE]-->
+    <string name="pref_location_key" translatable="false">location</string>
+    <!--Label for the loaction preferences [CHAR LIMIT = NONE]-->
+    <string name="pref_location_title">Location</string>
+    <!--Default city name for location preference  no spaces allowed per API bug, [CHAR LIMIT = NONE]-->
+    <string name="pref_location_default" translatable="false">Mountain</string>
 </resources>
