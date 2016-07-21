@@ -2,10 +2,12 @@ package com.anim8.edu.sunshine;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -58,7 +60,12 @@ public class ForecastFragment extends Fragment {
         //Must override onCreate to tell fragment it has OptionsMenu
         //Add this line in order for this fragment to handle menu events
         setHasOptionsMenu(true);
+    }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
 
     }
 
@@ -75,26 +82,44 @@ public class ForecastFragment extends Fragment {
         //as you specify a parent activity in the AndroidManifest.xml (me: How? )
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-            //following Refresh button action is for debug only (as is this whole 'Refresh button' itself!)
-            //new FetchWeatherTask().execute();//create a new Async task (FetchWeatherTask() here)
-            FetchWeatherTask weatherTask = new FetchWeatherTask();
-            //Udacity course asks to code for zip, but OpenWeatherMap apparently no longer supports
-            //note: following code really should not block UI but can't be in AsyncTask (weather)?
-            //check to see if internet permission is available.  Not sure where it should go
-            if (ContextCompat.checkSelfPermission(getActivity(),
-                    Manifest.permission.INTERNET)
-                    != PackageManager.PERMISSION_GRANTED) {
-                makeText(getActivity(), "Internet permission required for refresh", LENGTH_LONG).show();
-                //return true; //we've handled this event (by giving an error message) - see alt below
-
-            } else { //Here's where the FetchWeatherTask AsyncTask is actually called if has internet permission
-                weatherTask.execute("Mountain, US"); //hard code city name & country abbreviation
-                makeText(getActivity(), "Refresh button selected", LENGTH_LONG).show();
-                return true; //we've handled this event (as intended)
-            }
-            return true; //ensures menu selected is always consumed, even if error message above
+            updateWeather();
+            return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void updateWeather() {
+        //following Refresh button action is for debug only (as is this whole 'Refresh button' itself!)
+        //new FetchWeatherTask().execute();//create a new Async task (FetchWeatherTask() here)
+        FetchWeatherTask weatherTask = new FetchWeatherTask();
+        //Udacity course asks to code for zip, but OpenWeatherMap apparently no longer supports
+        //note: following code really should not block UI but can't be in AsyncTask (weather)?
+        //check to see if internet permission is available.  Not sure where it should go
+        if (ContextCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.INTERNET)
+                != PackageManager.PERMISSION_GRANTED) {
+            makeText(getActivity(), "Internet permission required for refresh", LENGTH_LONG).show();
+            //return true; //we've handled this event (by giving an error message) - see alt below
+
+        } else { //Here's where the FetchWeatherTask AsyncTask is actually called if has internet permission
+            //create a handle to defaultSharedPreference of our choice
+            //from: https://developer.android.com/training/basics/data-storage/shared-preferences.html
+//                SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
+//                String defaultValue = getResources().getString(R.string.pref_location_default);
+//                String location = sharedPref.getInt(getString(R.string.pref_location_key), defaultValue);
+//From: http://stackoverflow.com/questions/9587810/why-does-preferences-getstringkey-default-always-return-default
+            //& Udacity https://classroom.udacity.com/courses/ud853/lessons/1474559101/concepts/15761486050923
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            //this line is particularly opaque!!
+            String location = prefs.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default));
+            //weatherTask.execute("Mountain, US"); //old hard code city name & country abbreviation
+            weatherTask.execute(location+", US"); //new prefs dependent code city name & hard code country abbreviation
+
+            makeText(getActivity(), "Refresh button selected", LENGTH_LONG).show();
+            //return true; //we've handled this event (as intended)
+        }
+        //return true; //ensures menu selected is always consumed, even if error message above
+
     }
 
     @Override
