@@ -4,11 +4,19 @@
                   android:layout_height="match_parent">
 
     <EditTextPreference
-        android:title="@string/pref_location_title"
-        android:key="@string/pref_location_key"
         android:defaultValue="@string/pref_location_default"
         android:inputType="text"
+        android:key="@string/pref_location_key"
         android:singleLine="true"
+        android:title="@string/pref_location_title"
         />
 
-</PreferenceScreen>
+    <ListPreference
+        android:defaultValue="@string/pref_units_default"
+        android:entries="@array/pref_units_entries"
+        android:entryValues="@array/pref_units_values"
+        android:key="@string/pref_units_key"
+        android:title="@string/pref_units_title"
+        />
+
+</PreferenceScreen>  <!--android:entries are user visable, entryValues are used in logic-->

@@ -183,6 +183,26 @@ public class ForecastFragment extends Fragment {
          */
         //basically a String formatter for hi/lo temperatures
         private String formatHighLows(double high, double low) {
+            //Data is fetched in Celsius by default
+            //If user prefers to see in Fahrenheit, convert the values here
+            //we do this rather than fetchin in Fahrenhit so that the user can
+            //change this option without us having to re-fetch the data once
+            //we start storing the values in a database
+
+            SharedPreferences sharedPrefs =
+                    PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String unitType = sharedPrefs.getString(
+                    getString(R.string.pref_units_key), //shared pref unit key's value if present
+                    getString(R.string.pref_units_metric)); //default value
+
+            if (unitType.equals(getString(R.string.pref_units_imperial))){
+                high = (high * 1.8) + 32; //C = (F-32)/1.8
+                low = (low * 1.8) + 32;
+            }else if (!unitType.equals(getString(R.string.pref_units_metric))){
+                Log.d(LOG_TAG, "Unit type not found: " + unitType);//if neither imperial nor metric
+            }
+
+
             // For presentation, assume the user doesn't care about tenths of a degree.
             long roundedHigh = Math.round(high);
             long roundedLow = Math.round(low);
@@ -245,6 +265,9 @@ public class ForecastFragment extends Fragment {
                 JSONObject temperatureObject = dayForecast.getJSONObject(OWM_TEMPERATURE);
                 double high = temperatureObject.getDouble(OWM_MAX);
                 double low = temperatureObject.getDouble(OWM_MIN);
+
+                //TODO correct units:
+
 
                 highAndLow = formatHighLows(high, low); //our util function above
                 resultStrs[i] = day + " - " + description + " - " + highAndLow;

@@ -32,7 +32,8 @@ public class SettingsActivity extends PreferenceActivity
         // For all preferences, attach an OnPreferenceChangeListener so the UI summary can be
         // updated when the preference changed by user.
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_location_key)));
-
+        //if this line not present, Temperature units summary setting doesn't display (metric/imperial)
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_units_key)));
     }
 
     /**
@@ -68,6 +69,8 @@ public class SettingsActivity extends PreferenceActivity
             // For other preferences, set the summary to the value's simple string representation.
             preference.setSummary(stringValue);
         }
+
+
         return true;
     }
 
