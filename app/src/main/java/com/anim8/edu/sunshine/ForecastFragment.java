@@ -34,10 +34,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.List;
 
 import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.makeText;
@@ -125,26 +123,15 @@ public class ForecastFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        //create some dummy data for the ListView Here's a sample weekly forecast
-        String[] data = {
-                "Mon 6/23 - Sunny - 31/17",
-                "Tue 6/24 - Foggy - 21/8",
-                "Wed 6/25 - Cloudy - 22/17",
-                "Thur 6/26 - Rainy - 18/11",
-                "Fri 6/27 - Foggy - 21/10",
-                "Sat 6/28 - TRAPPED IN WEATHER STATION - 23/18",
-                "Sun 6/29 - Sunny - 20/7"
-        };
-        //create string ArrayList from data
-        List<String> weekForecast = new ArrayList<String>(Arrays.asList(data));
-        //Now that we have some dummy forecast data, create an ArrayAdaptor variable
-        //& assign it data from a source (like dummy data)
+
         mForecastAdapter = new ArrayAdapter<String>(
                 //parameters
                 getActivity(), //current context (current activity)
                 R.layout.list_item_forecast, //name of the layout ID of list item layout XML file
                 R.id.list_item_forecast_textview, //ID of text view element to populate
-                weekForecast); //Array List of data
+                //weekForecast); //Array List of data
+                new ArrayList<String>());//no date needed here because will get
+                // at onStart with updateWeather() refactored code
 
         //create fragment view (my fragmentView == rootView in Udacity code so refactored to rootView)
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
@@ -153,20 +140,6 @@ public class ForecastFragment extends Fragment {
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
         listView.setAdapter(mForecastAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
- /*           void onItemClick (AdapterView<?> parent,
-                              View view,
-                              int position,
-                              long id)
-            Callback method to be invoked when an item in this AdapterView has been clicked.
-
-            Implementers can call getItemAtPosition(position) if they need to access the data associated with the selected item.
-
-            Parameters
-            parent	AdapterView: The AdapterView where the click happened.
-            view	View: The view within the AdapterView that was clicked (this will be a view provided by the adapter)
-            position	int: The position of the view in the adapter.
-            id	long: The row id of the item that was clicked.*/
-
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, //AdapterView where the click happened (here parent of ListView)
