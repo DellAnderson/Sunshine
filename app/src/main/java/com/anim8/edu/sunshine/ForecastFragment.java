@@ -48,6 +48,7 @@ public class ForecastFragment extends Fragment {
 
     //Define string ArrayAdapter variable globally so can access in FetchWeatherTask AsyncTask
     private ArrayAdapter<String> mForecastAdapter;
+
     //constructor
     public ForecastFragment() {
     }
@@ -63,7 +64,7 @@ public class ForecastFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        updateWeather();
+        updateWeather(); // this calls method to refresh data
 
     }
 
@@ -86,6 +87,7 @@ public class ForecastFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
+    //this method is refactored for use on initial page onStart() & also onOptionsItemSelected()
     private void updateWeather() {
         //following Refresh button action is for debug only (as is this whole 'Refresh button' itself!)
         //new FetchWeatherTask().execute();//create a new Async task (FetchWeatherTask() here)
@@ -101,23 +103,15 @@ public class ForecastFragment extends Fragment {
 
         } else { //Here's where the FetchWeatherTask AsyncTask is actually called if has internet permission
             //create a handle to defaultSharedPreference of our choice
-            //from: https://developer.android.com/training/basics/data-storage/shared-preferences.html
-//                SharedPreferences sharedPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-//                String defaultValue = getResources().getString(R.string.pref_location_default);
-//                String location = sharedPref.getInt(getString(R.string.pref_location_key), defaultValue);
-//From: http://stackoverflow.com/questions/9587810/why-does-preferences-getstringkey-default-always-return-default
-            //& Udacity https://classroom.udacity.com/courses/ud853/lessons/1474559101/concepts/15761486050923
+            //TODO may want to make this a global variable so can reuse for units?
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            //this line is particularly opaque!!
+            //get location value (or default if none)
             String location = prefs.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default));
-            //weatherTask.execute("Mountain, US"); //old hard code city name & country abbreviation
-            weatherTask.execute(location+", US"); //new prefs dependent code city name & hard code country abbreviation
-
+            //assume city is in US, construct location string and pass to weatherTask (NOTE:
+            //TODO no spaces in city name allowed.  Can use Underscore
+            weatherTask.execute(location + ", US"); //new prefs dependent code city name & hard code country abbreviation
             makeText(getActivity(), "Refresh button selected", LENGTH_LONG).show();
-            //return true; //we've handled this event (as intended)
         }
-        //return true; //ensures menu selected is always consumed, even if error message above
-
     }
 
     @Override
@@ -131,7 +125,7 @@ public class ForecastFragment extends Fragment {
                 R.id.list_item_forecast_textview, //ID of text view element to populate
                 //weekForecast); //Array List of data
                 new ArrayList<String>());//no date needed here because will get
-                // at onStart with updateWeather() refactored code
+        // at onStart with updateWeather() refactored code
 
         //create fragment view (my fragmentView == rootView in Udacity code so refactored to rootView)
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
@@ -147,11 +141,6 @@ public class ForecastFragment extends Fragment {
                                     int position, //position of the view in the adapter
                                     long l) { //row id of the itme that was clicked
                 String forecast = mForecastAdapter.getItem(position); //get text from ArrayList item clicked
-                //create a Toast with forecast string
-                //also works
-                //String forecast = adapterView.getItemAtPosition(position).toString();
-                //Toast.makeText(getActivity(), forecast, LENGTH_LONG).show();
-
 
                 //replace Toast with Explicit Intent to DetailActivity
                 Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
@@ -159,9 +148,6 @@ public class ForecastFragment extends Fragment {
                 startActivity(detailIntent);
             }
         });
-
-
-
         return rootView;
     }
 
@@ -170,51 +156,14 @@ public class ForecastFragment extends Fragment {
         private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
         // try to open a network connection (using Github snippet from
         // https://gist.github.com/anonymous/1c04bf2423579e9d2dcd
-
-//CODE FROM https://gist.github.com/udacityandroid/4ee49df1694da9129af9 & Antiterra (same URL)
-        // /* The date/time conversion code is going to be moved outside the asynctask later,
-        // * so for convenience we're breaking it out into its own method now.
-        // */
-
         //ToDo: Refactor SimpleDateFormat code here
 
-        /**
-         * Prepare the weather high/lows for presentation.
-         */
-        //basically a String formatter for hi/lo temperatures
-        private String formatHighLows(double high, double low) {
-            //Data is fetched in Celsius by default
-            //If user prefers to see in Fahrenheit, convert the values here
-            //we do this rather than fetchin in Fahrenhit so that the user can
-            //change this option without us having to re-fetch the data once
-            //we start storing the values in a database
 
-            SharedPreferences sharedPrefs =
-                    PreferenceManager.getDefaultSharedPreferences(getActivity());
-            String unitType = sharedPrefs.getString(
-                    getString(R.string.pref_units_key), //shared pref unit key's value if present
-                    getString(R.string.pref_units_metric)); //default value
-
-            if (unitType.equals(getString(R.string.pref_units_imperial))){
-                high = (high * 1.8) + 32; //C = (F-32)/1.8
-                low = (low * 1.8) + 32;
-            }else if (!unitType.equals(getString(R.string.pref_units_metric))){
-                Log.d(LOG_TAG, "Unit type not found: " + unitType);//if neither imperial nor metric
-            }
-
-
-            // For presentation, assume the user doesn't care about tenths of a degree.
-            long roundedHigh = Math.round(high);
-            long roundedLow = Math.round(low);
-
-            String highLowStr = roundedHigh + "/" + roundedLow;
-            return highLowStr;
-        }
 
         /**
          * Take the String representing the complete forecast in JSON Format and
          * pull out the data we need to construct the Strings needed for the wireframes.
-         * <p/>
+         * <p>
          * Fortunately parsing is easy:  constructor takes the JSON string and converts it
          * into an Object hierarchy for us.
          */
@@ -233,14 +182,20 @@ public class ForecastFragment extends Fragment {
             //create JSON object from the previously returned & input forecastJsonStr String
             JSONObject forecastJson = new JSONObject(forecastJsonStr);
             JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
-
+            //note that Udacity code used Julian.  No idea why. Changed back in 1582!!!
             GregorianCalendar gc = new GregorianCalendar();
             Date date = new Date();
             gc.setTime(date); //initialize to current date & time(?)
             //basically we will iterate thru returned results in sync with today's calendar date, inc by 1 each
             String[] resultStrs = new String[numDays];
-            for (int i = 0; i < weatherArray.length(); i++) {
 
+            SharedPreferences sharedPrefs =
+                    PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String unitType = sharedPrefs.getString(
+                    getString(R.string.pref_units_key), //shared pref unit key's value if present
+                    getString(R.string.pref_units_metric)); //default value
+
+            for (int i = 0; i < weatherArray.length(); i++) {
                 // For now, using the format "Day, description, hi/low"
                 String day; // ex:  "Mon 6/23"
                 String description; //ex: "Foggy"
@@ -249,8 +204,7 @@ public class ForecastFragment extends Fragment {
                 // Get the JSON object representing the ith day in returned weatherArray from OWM_LIST
                 JSONObject dayForecast = weatherArray.getJSONObject(i);
 
-                //create a SimpleDateFormat instance with proper formatting for
-                //day = "Mon 6/23";
+                //create a SimpleDateFormat instance with proper formatting for day = "Mon 6/23";
                 //SimpleDateFormat sdf = new SimpleDateFormat("EEE M/dd"); //~ dummy data
                 SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM d"); // clearer Udacity code
                 //create day from gc & sdf (using getTime() to get proper input)
@@ -266,13 +220,11 @@ public class ForecastFragment extends Fragment {
                 double high = temperatureObject.getDouble(OWM_MAX);
                 double low = temperatureObject.getDouble(OWM_MIN);
 
-                //TODO correct units:
-
-
-                highAndLow = formatHighLows(high, low); //our util function above
+                //correct units & format output string (resultStrs[]) array
+                highAndLow = formatHighLows(high, low, unitType); //format using our util method below
                 resultStrs[i] = day + " - " + description + " - " + highAndLow;
 
-                //add one to date for next iteration
+                //increment date for next iteration
                 gc.add(GregorianCalendar.DATE, 1);
             } //closing bracket for weatherData array iteration
 
@@ -302,25 +254,13 @@ public class ForecastFragment extends Fragment {
             String units = "metric";
             int numDays = 7;
 
-            try {
+            try {  //we need to use "try" because nothing on the internet is guaranteed 100% avail
                 if (ContextCompat.checkSelfPermission(getActivity(),
                         Manifest.permission.INTERNET)
                         != PackageManager.PERMISSION_GRANTED) {
                     makeText(getActivity(), "Internet permission required", LENGTH_LONG).show();
                     return null;
                 }
-                // Should we show an explanation?
-   /*                     if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
-                                Manifest.permission.INTERNET)) {
-
-                            // Show an explanation to the user *asynchronously* -- don't block
-                            // this thread waiting for the user's response! After the user
-                            // sees the explanation, try again to request the permission.
-                        */
-
-                // Construct the URL for the OpenWeatherMap query
-                // Possible parameters are available at OWM's forecast API page, at
-                // http://openweathermap.org/API#forecast
 
                 //Construct the URL from constants above
                 final String FORECAST_BASE_URL = "http://api.openweathermap.org/data/2.5/forecast/daily?";
@@ -329,6 +269,7 @@ public class ForecastFragment extends Fragment {
                 final String UNITS_PARAM = "units";  //apparently this is not the same as units String variable
                 final String DAYS_PARAM = "cnt";
                 final String APPID_PARAM = "APPID";
+                //IMPORTANT NOTE:  Without doing the following code will NOT fetch data
                 //To keep APPID private when uploading project to GitHub,
                 //create an ApiKey key/value pair in a file (create if need) called gradle.properties
                 //c:/users/<username>/.gradle  with the following (arbitrary name) key = "..." syntax:
@@ -407,7 +348,6 @@ public class ForecastFragment extends Fragment {
                 Log.e(LOG_TAG, e.getMessage(), e);
                 e.printStackTrace();
             }
-
             // This will only happen if there was an error getting or parsing the forecast.
             return null;
 
@@ -427,5 +367,28 @@ public class ForecastFragment extends Fragment {
                 //New data is back from the surver. Hooray!
             }//end if
         }
+
+        //Utility method: basically a String formatter for hi/lo temperatures
+        //Prepare the weather high/lows for presentation.
+        private String formatHighLows(double high, double low, String unitType) {
+            //Data is fetched in Celsius by default
+            //If user prefers to see in Fahrenheit, convert the values here
+            //we do this rather than fetching in Fahrenheit so that the user can
+            //change this option without us having to re-fetch the data once
+            //we start storing the values in a database
+            if (unitType.equals(getString(R.string.pref_units_imperial))) {
+                high = (high * 1.8) + 32; //C = (F-32)/1.8
+                low = (low * 1.8) + 32;
+            } else if (!unitType.equals(getString(R.string.pref_units_metric))) {
+                Log.d(LOG_TAG, "Unit type not found: " + unitType);//if neither imperial nor metric
+            }
+            // For presentation, assume the user doesn't care about tenths of a degree.
+            long roundedHigh = Math.round(high);
+            long roundedLow = Math.round(low);
+            //prepare display string (highLowStr)
+            String highLowStr = roundedHigh + "/" + roundedLow;
+            return highLowStr;
+        }
+
     } //closing bracket for FetchWeatherTask
 } //closing bracket for ForecastFragment

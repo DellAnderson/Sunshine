@@ -14,7 +14,7 @@ import android.widget.TextView;
  */
 public class DetailActivityFragment extends Fragment {
 //TODO oddly, units don't refresh properly from detail view (not sure about location)
-    
+
     public DetailActivityFragment() {
     }
 
@@ -33,9 +33,12 @@ public class DetailActivityFragment extends Fragment {
         if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
             String forecastStr = intent.getStringExtra(Intent.EXTRA_TEXT);
             ((TextView) detailView.findViewById(R.id.detail_text)).setText(forecastStr);
-
         }
-
         return detailView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();  //TODO make units update
     }
 }

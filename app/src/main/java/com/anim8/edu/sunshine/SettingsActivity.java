@@ -26,7 +26,7 @@ public class SettingsActivity extends PreferenceActivity
         super.onCreate(savedInstanceState);
         // Add 'general' preferences, defined in the XML file
         //This particular code is for learning purposes only and is
-       //deprecated because now use wizard with combo of preferencesActivity & preferencesFragment
+        //deprecated because now use wizard with combo of preferencesActivity & preferencesFragment
         //but it is actually the current best practice given that we're targeting Gingerbread!
         addPreferencesFromResource(R.xml.pref_general);
         // For all preferences, attach an OnPreferenceChangeListener so the UI summary can be
