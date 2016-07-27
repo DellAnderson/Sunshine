@@ -58,7 +58,7 @@ public class ForecastFragment extends Fragment {
         super.onCreate(savedInstanceState);
         //Must override onCreate to tell fragment it has OptionsMenu
         //Add this line in order for this fragment to handle menu events
-        setHasOptionsMenu(true);
+        setHasOptionsMenu(true); // this is needed to show fragment menu options in toolbar
     }
 
     @Override
@@ -68,9 +68,8 @@ public class ForecastFragment extends Fragment {
 
     }
 
-    @Override //Then we override onCreateOptions menu to inflate our forecastfragment XML
+    @Override //Then we override onCreateOptions menu to also inflate our forecastfragment XML
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        //super.onCreateOptionsMenu(menu, inflater); //not sure this is required
         inflater.inflate(R.menu.forecastfragment, menu);  //we created forecastfragment
     }
 
@@ -80,47 +79,55 @@ public class ForecastFragment extends Fragment {
         //automatically handle clicks on the Home/Up button, so long
         //as you specify a parent activity in the AndroidManifest.xml (me: How? )
         int id = item.getItemId();
-        if (id == R.id.action_refresh) {
-            updateWeather(); //calls update on Refresh option selected
-            return true;
-        }
-        //Not sure if this is proper place for settings (was in MainActivity) but it works
-        if(id == R.id.action_settings) {
-            //launch settings page
-            Intent settingsIntent = new Intent(this.getActivity(), SettingsActivity.class);
-            startActivity(settingsIntent);
-            //or startActivity(new Intent(this, SettingsActivity.class);
-            return true;
-        }
-        //TODO implicit intent to view preferred location on map
-        if(id == R.id.action_show_map) {
-            //launch implied intent
+        switch(id){
+            case R.id.action_refresh:
+                updateWeather(); //calls update on Refresh option selected
+                return true;
 
-            //fine location from Shared Preferences
-            SharedPreferences sharedPrefs =
-                    PreferenceManager.getDefaultSharedPreferences(getActivity());
-            String geoLocation = sharedPrefs.getString(
-                    getString(R.string.pref_location_key), //shared pref unit key's value if present
-                    getString(R.string.pref_location_default)); //default value
-            //TODO change to actual location from preferences above
-            Uri geoLocationUri = Uri.parse("geo:0,0?q=1600+Amphitheatre+Parkway,+Mountain+View,+California");
-            Intent intent = new Intent(Intent.ACTION_VIEW, geoLocationUri);
-   //         intent.setData(geoLocationUri);
-            //Be sure there is at least one activity available to handle intent
-            PackageManager packageManager = getActivity().getPackageManager();
-/*            List activities = packageManager.queryIntentActivities(intent,
-                    PackageManager.MATCH_DEFAULT_ONLY);
-            boolean isIntentSafe = activities.size() > 0;*/
-            if (intent.resolveActivity(this.getActivity().getPackageManager()) != null) {
-                startActivity(intent);
-            } else{
-                makeText(getActivity(), "Must download an activity to show maps", LENGTH_LONG).show();
-            }
-            return true;
+            case R.id.action_settings:
+                //launch settings page via explicit intent
+                Intent settingsIntent = new Intent(this.getActivity(), SettingsActivity.class);
+                startActivity(settingsIntent);
+                //or startActivity(new Intent(this, SettingsActivity.class);
+                return true;
+            case R.id.action_map:
+                openPreferredLocationInMap(); //helper method
+                return true;
         }
-
 
         return super.onOptionsItemSelected(item);
+    }
+
+    //helper method for Location Map
+    private void openPreferredLocationInMap() {
+        //create implicit intent to view preferred location on map
+        //obtain location from Shared Preferences
+        SharedPreferences sharedPrefs =
+                PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String geoLocation = sharedPrefs.getString(
+                getString(R.string.pref_location_key), //shared pref unit key's value if present
+                getString(R.string.pref_location_default)); //default value
+        //Uri geoLocationUri = Uri.parse("geo:0,0?q=1600+Amphitheatre+Parkway,+Mountain+View,+California");
+        Uri geoLocationUri = Uri.parse("geo:0,0?q="+geoLocation+",CA");
+        // http://developer.android.com/guide/components/intents-common.html#Maps
+            /*Uri geoLocationUri = Uri.parse("geo:0,0?").buildUpon()
+                    .appendQueryParameter("q", geoLocation)
+                    .build();*/
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW);
+        //debugging use only
+        makeText(getActivity(), geoLocationUri.toString(), LENGTH_LONG).show();
+
+        mapIntent.setData(geoLocationUri);
+        //Be sure there is at least one activity available to handle intent
+           /* PackageManager packageManager = getActivity().getPackageManager();
+            List activities = packageManager.queryIntentActivities(intent,
+                    PackageManager.MATCH_DEFAULT_ONLY);
+            boolean isIntentSafe = activities.size() > 0; */
+        if (mapIntent.resolveActivity(this.getActivity().getPackageManager()) != null) {
+            startActivity(mapIntent);
+        } else {
+            makeText(getActivity(), "Must download a map activity to show maps", LENGTH_LONG).show();
+        }
     }
 
     @Override

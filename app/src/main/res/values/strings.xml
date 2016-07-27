@@ -1,18 +1,22 @@
 <resources>
-    <!--Menu item names-->
+    <!--Strings for activity names-->
     <string name="app_name">Sunshine</string>
+    <string name="title_activity_detail">DetailActivity</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!--Menu labels to fetch updated item names-->
     <string name="action_settings">Settings</string>
     <string name="action_refresh" translatable="false">Refresh</string>
     <string name="action_show_map">Show Map</string>>
-    <string name="title_activity_detail">DetailActivity</string>
-    <string name="title_activity_settings">Settings</string>
-    <!-- Key name for storing location in SharedPreferences[CHAR LIMIT = NONE]-->
+
+    <!-- Strings related to location in SharedPreferences[CHAR LIMIT = NONE]-->
     <string name="pref_location_key" translatable="false">location</string>
-    <!--Label for the loaction preferences [CHAR LIMIT = NONE]-->
+    <!--Label for the location preferences [CHAR LIMIT = NONE]-->
     <string name="pref_location_title">Location</string>
-    <!--Default city name for location preference  no spaces allowed per API bug, [CHAR LIMIT = NONE]-->
+    <!--String for location preference  no spaces allowed per API bug, [CHAR LIMIT = NONE]-->
     <string name="pref_location_default" translatable="false">Mountain</string>
-    <!--Pref Settings for temperature units-->
+
+    <!--Strings related to temperature units-->
     <string name="pref_units_title">Temperature units</string>
     <string name="pref_units_default">metric</string>
     <string name="pref_units_key">units</string>

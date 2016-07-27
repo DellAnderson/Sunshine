@@ -13,7 +13,7 @@ import android.widget.TextView;
  * Udacity put this class definition at bottom DetailActivity.java
  */
 public class DetailActivityFragment extends Fragment {
-//TODO oddly, units don't refresh properly from detail view (not sure about location)
+    //TODO oddly, units don't refresh properly from detail view (not sure about location)
 
     public DetailActivityFragment() {
     }
@@ -37,8 +37,4 @@ public class DetailActivityFragment extends Fragment {
         return detailView;
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();  //TODO make units update
-    }
 }
