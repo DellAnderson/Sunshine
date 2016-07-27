@@ -27,7 +27,7 @@ public class DetailActivityFragment extends Fragment {
         Intent intent = getActivity().getIntent();
         //create a view based on fragment_detail
         View detailView = inflater.inflate(R.layout.fragment_detail, container, false);
-        //create textview to display forecast detail
+        //create textview to display forecast detail //TODO see why breakpoint next line crashes app
         TextView forecast_textView_detail = (TextView) detailView.findViewById(R.id.detail_text);
         //read the intent's forecast data back to display in the text view
         if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {

@@ -81,37 +81,46 @@ public class ForecastFragment extends Fragment {
         //as you specify a parent activity in the AndroidManifest.xml (me: How? )
         int id = item.getItemId();
         if (id == R.id.action_refresh) {
-            updateWeather();
+            updateWeather(); //calls update on Refresh option selected
             return true;
         }
-        return super.onOptionsItemSelected(item);
-    }
-
-    //this method is refactored for use on initial page onStart() & also onOptionsItemSelected()
-    private void updateWeather() {
-        //following Refresh button action is for debug only (as is this whole 'Refresh button' itself!)
-        //new FetchWeatherTask().execute();//create a new Async task (FetchWeatherTask() here)
-        FetchWeatherTask weatherTask = new FetchWeatherTask();
-        //Udacity course asks to code for zip, but OpenWeatherMap apparently no longer supports
-        //note: following code really should not block UI but can't be in AsyncTask (weather)?
-        //check to see if internet permission is available.  Not sure where it should go
-        if (ContextCompat.checkSelfPermission(getActivity(),
-                Manifest.permission.INTERNET)
-                != PackageManager.PERMISSION_GRANTED) {
-            makeText(getActivity(), "Internet permission required for refresh", LENGTH_LONG).show();
-            //return true; //we've handled this event (by giving an error message) - see alt below
-
-        } else { //Here's where the FetchWeatherTask AsyncTask is actually called if has internet permission
-            //create a handle to defaultSharedPreference of our choice
-            //TODO may want to make this a global variable so can reuse for units?
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            //get location value (or default if none)
-            String location = prefs.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default));
-            //assume city is in US, construct location string and pass to weatherTask (NOTE:
-            //TODO no spaces in city name allowed.  Can use Underscore
-            weatherTask.execute(location + ", US"); //new prefs dependent code city name & hard code country abbreviation
-            makeText(getActivity(), "Refresh button selected", LENGTH_LONG).show();
+        //Not sure if this is proper place for settings (was in MainActivity) but it works
+        if(id == R.id.action_settings) {
+            //launch settings page
+            Intent settingsIntent = new Intent(this.getActivity(), SettingsActivity.class);
+            startActivity(settingsIntent);
+            //or startActivity(new Intent(this, SettingsActivity.class);
+            return true;
         }
+        //TODO implicit intent to view preferred location on map
+        if(id == R.id.action_show_map) {
+            //launch implied intent
+
+            //fine location from Shared Preferences
+            SharedPreferences sharedPrefs =
+                    PreferenceManager.getDefaultSharedPreferences(getActivity());
+            String geoLocation = sharedPrefs.getString(
+                    getString(R.string.pref_location_key), //shared pref unit key's value if present
+                    getString(R.string.pref_location_default)); //default value
+            //TODO change to actual location from preferences above
+            Uri geoLocationUri = Uri.parse("geo:0,0?q=1600+Amphitheatre+Parkway,+Mountain+View,+California");
+            Intent intent = new Intent(Intent.ACTION_VIEW, geoLocationUri);
+   //         intent.setData(geoLocationUri);
+            //Be sure there is at least one activity available to handle intent
+            PackageManager packageManager = getActivity().getPackageManager();
+/*            List activities = packageManager.queryIntentActivities(intent,
+                    PackageManager.MATCH_DEFAULT_ONLY);
+            boolean isIntentSafe = activities.size() > 0;*/
+            if (intent.resolveActivity(this.getActivity().getPackageManager()) != null) {
+                startActivity(intent);
+            } else{
+                makeText(getActivity(), "Must download an activity to show maps", LENGTH_LONG).show();
+            }
+            return true;
+        }
+
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -125,24 +134,25 @@ public class ForecastFragment extends Fragment {
                 R.id.list_item_forecast_textview, //ID of text view element to populate
                 //weekForecast); //Array List of data
                 new ArrayList<String>());//no date needed here because will get
-        // at onStart with updateWeather() refactored code
 
-        //create fragment view (my fragmentView == rootView in Udacity code so refactored to rootView)
+        //create fragment_main view (rootView)
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
         //get reference to list view & populate it by attaching this adapter to it
         //rootView prefix limits search scope
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
+        //assign mForeCastAdapter ArrayAdapter to listView
         listView.setAdapter(mForecastAdapter);
+        //onItemClick() creates detail view (via explicit intent)
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> adapterView, //AdapterView where the click happened (here parent of ListView)
                                     View v, //view within the AdapterView that was clicked (provided by adapter)
                                     int position, //position of the view in the adapter
-                                    long l) { //row id of the itme that was clicked
+                                    long l) { //row id of the item that was clicked
                 String forecast = mForecastAdapter.getItem(position); //get text from ArrayList item clicked
 
-                //replace Toast with Explicit Intent to DetailActivity
+                //Explicit Intent to DetailActivity
                 Intent detailIntent = new Intent(getActivity(), DetailActivity.class);
                 detailIntent.putExtra(Intent.EXTRA_TEXT, forecast);  //EXTRA_TEXT can be anything
                 startActivity(detailIntent);
@@ -151,23 +161,20 @@ public class ForecastFragment extends Fragment {
         return rootView;
     }
 
+    //create an AsynTask to fetch weather data in background
     public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
         private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
         // try to open a network connection (using Github snippet from
         // https://gist.github.com/anonymous/1c04bf2423579e9d2dcd
-        //ToDo: Refactor SimpleDateFormat code here
-
-
 
         /**
          * Take the String representing the complete forecast in JSON Format and
          * pull out the data we need to construct the Strings needed for the wireframes.
-         * <p>
          * Fortunately parsing is easy:  constructor takes the JSON string and converts it
          * into an Object hierarchy for us.
+         * basically a JSON formatting utility
          */
-        //basically a JSON formatting utility
         private String[] getWeatherDataFromJson(String forecastJsonStr, int numDays)
                 throws JSONException {
 
@@ -189,12 +196,18 @@ public class ForecastFragment extends Fragment {
             //basically we will iterate thru returned results in sync with today's calendar date, inc by 1 each
             String[] resultStrs = new String[numDays];
 
+            //get units from sharedPreferences
             SharedPreferences sharedPrefs =
                     PreferenceManager.getDefaultSharedPreferences(getActivity());
             String unitType = sharedPrefs.getString(
                     getString(R.string.pref_units_key), //shared pref unit key's value if present
                     getString(R.string.pref_units_metric)); //default value
 
+            //create a SimpleDateFormat instance with proper formatting for day = "Mon 6/23";
+            //SimpleDateFormat sdf = new SimpleDateFormat("EEE M/dd"); //~ dummy data
+            SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM d"); // clearer Udacity code
+
+            //loop thru weatherArray (which is from JSON data array)
             for (int i = 0; i < weatherArray.length(); i++) {
                 // For now, using the format "Day, description, hi/low"
                 String day; // ex:  "Mon 6/23"
@@ -204,10 +217,8 @@ public class ForecastFragment extends Fragment {
                 // Get the JSON object representing the ith day in returned weatherArray from OWM_LIST
                 JSONObject dayForecast = weatherArray.getJSONObject(i);
 
-                //create a SimpleDateFormat instance with proper formatting for day = "Mon 6/23";
-                //SimpleDateFormat sdf = new SimpleDateFormat("EEE M/dd"); //~ dummy data
-                SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM d"); // clearer Udacity code
-                //create day from gc & sdf (using getTime() to get proper input)
+                //create day from gc & sdf (using getTime(),  gc (GregorianCalendar) &
+                //SimpleDateFormat (sdf) objects to get proper day output format
                 day = sdf.format(gc.getTime());
 
                 //description is in a child array called "weather" , which is 1 element (0) long
@@ -220,7 +231,7 @@ public class ForecastFragment extends Fragment {
                 double high = temperatureObject.getDouble(OWM_MAX);
                 double low = temperatureObject.getDouble(OWM_MIN);
 
-                //correct units & format output string (resultStrs[]) array
+                //format output string (resultStrs[]) array using sharedPreferences units
                 highAndLow = formatHighLows(high, low, unitType); //format using our util method below
                 resultStrs[i] = day + " - " + description + " - " + highAndLow;
 
@@ -305,6 +316,7 @@ public class ForecastFragment extends Fragment {
                     return null;
                 }
 
+                // create new BufferedReader from inputStream
                 reader = new BufferedReader(new InputStreamReader(inputStream));
 
                 String line;
@@ -323,12 +335,12 @@ public class ForecastFragment extends Fragment {
                 forecastJsonStr = buffer.toString();
 
             } catch (IOException e) {
-                Log.e(LOG_TAG, "Error ", e);
+                Log.e(LOG_TAG, "Error getting weather data ", e);
                 // If the code didn't successfully get the weather data, there's no point in attempting
                 // to parse it.
                 return null;
 
-            } finally {
+            } finally { //no matter what, we want to close urlConnection  & bufferedReader
                 if (urlConnection != null) {
                     urlConnection.disconnect();
                 }
@@ -336,7 +348,7 @@ public class ForecastFragment extends Fragment {
                     try {
                         reader.close();
                     } catch (final IOException e) {
-                        Log.e(LOG_TAG, "Error closing stream", e);
+                        Log.e(LOG_TAG, "Error closing stream ", e);
                     }
                 }
             }
@@ -391,4 +403,31 @@ public class ForecastFragment extends Fragment {
         }
 
     } //closing bracket for FetchWeatherTask
+
+    //this method is refactored for use on initial page onStart() & also onOptionsItemSelected()
+    private void updateWeather() {
+        //following Refresh button action is for debug only (as is this whole 'Refresh button' itself!)
+        //new FetchWeatherTask().execute();//create a new Async task (FetchWeatherTask() here)
+        FetchWeatherTask weatherTask = new FetchWeatherTask();
+        //Udacity course asks to code for zip, but OpenWeatherMap apparently no longer supports
+        //note: following code really should not block UI but can't be in AsyncTask (weather)?
+        //check to see if internet permission is available.  Not sure where it should go
+        if (ContextCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.INTERNET)
+                != PackageManager.PERMISSION_GRANTED) {
+            makeText(getActivity(), "Internet permission required for refresh", LENGTH_LONG).show();
+            //return true; //we've handled this event (by giving an error message) - see alt below
+
+        } else { //Here's where the FetchWeatherTask AsyncTask is actually called if has internet permission
+            //create a handle to defaultSharedPreference of our choice
+            //TODO may want to make this a global variable so can reuse for units?
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            //get location value (or default if none)
+            String location = prefs.getString(getString(R.string.pref_location_key), getString(R.string.pref_location_default));
+            //assume city is in US, construct location string and pass to weatherTask (NOTE:
+            //TODO no spaces in city name allowed.  Can use Underscore
+            weatherTask.execute(location + ", US"); //new prefs dependent code city name & hard code country abbreviation
+            makeText(getActivity(), "Refresh button selected", LENGTH_LONG).show();
+        }
+    }
 } //closing bracket for ForecastFragment
