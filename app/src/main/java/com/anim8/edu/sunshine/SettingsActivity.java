@@ -6,7 +6,6 @@ import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
-
 /**
  * A {@link PreferenceActivity} that presents a set of application settings.
  * <p>
@@ -32,7 +31,6 @@ public class SettingsActivity extends PreferenceActivity
         // For all preferences, attach an OnPreferenceChangeListener so the UI summary can be
         // updated when the preference changed by user.
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_location_key)));
-        //if this line not present, Temperature units summary setting doesn't display (metric/imperial)
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_units_key)));
     }
 
@@ -56,7 +54,7 @@ public class SettingsActivity extends PreferenceActivity
     @Override
     public boolean onPreferenceChange(Preference preference, Object value) {
         String stringValue = value.toString();
-
+        //this is for units and such
         if (preference instanceof ListPreference) {
             // For list preferences, look up the correct display value in
             // the preference's 'entries' list (since they have separate labels/values).
@@ -66,10 +64,10 @@ public class SettingsActivity extends PreferenceActivity
                 preference.setSummary(listPreference.getEntries()[prefIndex]);
             }
         } else {
-            // For other preferences, set the summary to the value's simple string representation.
+            // For other preferences, like location,
+            // set the summary to the value's simple string representation.
             preference.setSummary(stringValue); //TODO setting breakpoint here crashes app Android 6.0.  Don't know why
         }
-
 
         return true;
     }

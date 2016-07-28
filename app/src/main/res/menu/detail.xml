@@ -3,15 +3,11 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="com.anim8.edu.sunshine.DetailActivity">
     <!--TODO someday maybe add settings & show map functionality to detail page (need to edit java-->
-    <!--    <item
+
+    <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
         android:title="@string/action_settings"
-        app:showAsAction="never"/>-->
+        app:showAsAction="never"/>
 
-    <!--    <item
-            android:id="@+id/action_map"
-            android:orderInCategory="100"
-            android:title="@string/action_show_map"
-            app:showAsAction="never"/>-->
 </menu>

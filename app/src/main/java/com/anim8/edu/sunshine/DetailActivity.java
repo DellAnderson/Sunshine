@@ -38,7 +38,7 @@ public class DetailActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         //the next line necessary or no menu!  Even with this, only presents settings item in list
         //not sure where the 'refresh' came from in MainActivity menu
-        getMenuInflater().inflate(R.menu.menu_detail, menu);
+        getMenuInflater().inflate(R.menu.detail, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
