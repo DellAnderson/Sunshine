@@ -30,9 +30,10 @@ public class DetailActivityFragment extends Fragment {
     private String mForecastStr; //member variable (so can reuse?)
 
     public DetailActivityFragment() {
-        //must add flag that tells fragment that it has a menu
-        //otherwise won't call the onCreateOptionsMenu()
-        setHasOptionsMenu(true); //this makes menu option available
+        //set flag that tells Android fragment that a menu option available
+        //otherwise won't call the onCreateOptionsMenu() function
+        setHasOptionsMenu(true); //menu option available
+
     }
 
     @Override
@@ -67,6 +68,7 @@ public class DetailActivityFragment extends Fragment {
 
         //Get the provider and hold onto it to set/change the share intent
         //NOTE:  Had to manually import android.support.v7.widget.ShareActionProvider for this line
+        //will update this whenever the data we wish to share changes
         ShareActionProvider mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
 
         //Attach an intent to this ShareActionProvider.  You will update this at any time
@@ -85,9 +87,10 @@ public class DetailActivityFragment extends Fragment {
         //shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET); //deprecated vs. NEW DOCUMENT
 
         //Following line prevents Android from adding the activity we are sharing with to the
-        //activity stack.  Allows you to return to current activity, not the shared activity
+        //activity stack.
+        // Allows you to return to current activity, not the shared activity
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-        shareIntent.setType("text/plain");
+        shareIntent.setType("text/plain");  //letting Android know we're sharing text
         shareIntent.putExtra(Intent.EXTRA_TEXT,mForecastStr + FORECAST_SHARE_HASHTAG);
         return shareIntent;
     }

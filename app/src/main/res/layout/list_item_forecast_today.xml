@@ -2,7 +2,7 @@
 <!-- layout for weather forecast list item for future day (not today) -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:id="@+id/list_item_forecast"
+              android:id="@+id/list_item_forecast_today"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:gravity="center_vertical"
@@ -11,16 +11,11 @@
               android:padding="16dp">
 
 
-    <ImageView
-        android:id="@+id/list_item_icon"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@mipmap/ic_launcher"/>
-
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:gravity="center_horizontal"
         android:orientation="vertical"
         android:paddingLeft="16dp">
 
@@ -28,19 +23,8 @@
             android:id="@+id/list_item_date_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+
             android:text="Tomorrow"/>
-
-        <TextView
-            android:id="@+id/list_item_forecast_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Clear"/>
-
-    </LinearLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
 
         <TextView
             android:id="@+id/list_item_high_textview"
@@ -54,6 +38,27 @@
             android:layout_height="wrap_content"
             android:text="68"/>
 
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_horizontal">
+
+        <ImageView
+            android:id="@+id/list_item_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_launcher"/>
+
+        <TextView
+            android:id="@+id/list_item_forecast_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Clear"/>
 
     </LinearLayout>
 
